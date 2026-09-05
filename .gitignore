@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+paipan_result.json
+bazi-data.json
+report.html
+*.png

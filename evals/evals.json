@@ -11,7 +11,107 @@
         "The response identifies the chart as a Qian造 with 丙火 as the day master.",
         "The response treats 庚戌 as the current DaYun and 丙午 as the current LiuNian.",
         "The response does not incorrectly claim that the provided DaYun sequence conflicts with the chart direction rule.",
-        "The response explains how the winter湿寒 structure affects 丙火 and references the current 运年 interaction."
+        "The response explains how the winter湿寒 structure affects 丙火 and references the current 运年 interaction.",
+        "The input is pillars-only (no birth datetime), so the response verifies the DaYun direction with the rule (乾造 + 阴年丁 → 逆行 → 首运壬子) and states the user's sequence is consistent, instead of pretending to run paipan.py or inventing 起运 numbers."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "1990-06-15 14:30 出生于上海，男。帮我看看财运怎么样？",
+      "expected_output": "应进入单点问答模式：先排盘（带 --longitude 真太阳时校正），再只做与财运相关的结构步骤，输出简版四段（结论/结构依据/风险前提/建议），不输出完整长篇报告。",
+      "files": [],
+      "expectations": [
+        "The response routes to single-question mode, not full analysis.",
+        "The response runs scripts/paipan.py with --birth and --longitude and treats the JSON as the sole source for pillars.",
+        "The response answers the wealth question directly before giving structural evidence.",
+        "The response does not expand into a full nine-section report.",
+        "The response mentions true solar time correction applied for Shanghai."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "帮我排个盘：1998-01-19 早上 8 点，女，北京。",
+      "expected_output": "应进入排盘确认模式：调用 paipan.py 排盘并确认四柱（丁丑年癸丑月丙寅日辰时）、起运与大运，然后询问是否继续深入分析，不提前展开命局判断。",
+      "files": [],
+      "expectations": [
+        "The response routes to chart-confirmation mode and does not produce a full destiny analysis.",
+        "The response calls paipan.py and reports pillars that match 丁丑/癸丑/丙寅 with the correct hour pillar for 辰时.",
+        "The response reports 起运 and 大运 sequence from the script JSON.",
+        "The response ends by asking whether to continue with full analysis or focus on specific questions/years."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "帮我看看这个八字明年适合不适合创业：时辰记不清了，好像是下午。",
+      "expected_output": "应进入信息不足模式：时辰缺失（且只记得大概时段），必须先用最少的问题澄清（请用户提供确切时辰或专业排盘结果），不得以默认时辰强行排盘分析。",
+      "files": [],
+      "expectations": [
+        "The response asks for the exact birth hour before any analysis.",
+        "The response does not fabricate or default-fill the missing hour and run a full analysis anyway.",
+        "The response explains briefly why the hour matters (hour pillar, 起运 precision).",
+        "The response keeps clarification minimal (fewest questions)."
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "乾造 庚午 壬午 辛亥 乙未，出生地上海。补充几个真实经历：2024 年我明显进了一笔大财，2026 年 pressure 特别大还生了场病，你验证下这个盘的时间准不准，然后做完整分析。",
+      "expected_output": "应触发第 1.5 步验前事校验：用 paipan.py --liunian 2024,2025,2026 补算流年干支（甲辰、乙巳、丙午），逐一对照大运判定命中等级；2026 丙午正官攻身的健康/压力信号应判为高贴合，然后正常进入完整分析。",
+      "files": [],
+      "expectations": [
+        "The response runs paipan.py with --liunian 2024,2026 (or the full range) instead of recalling ganzhi from memory.",
+        "The response performs the pre-validation step and grades each event (高贴合/部分贴合/失配).",
+        "The response maps 2024 甲辰 to the wealth event and 2026 丙午 to the health/pressure event with chart anchors.",
+        "The response continues into full analysis given no 失配 verdict.",
+        "The response does not output ✋结转 lines in the user-facing answer."
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "乾造 丙午 庚寅 甲申 壬申，这个盘地支辰戌丑未有什么讲究？给我讲讲四墓库的处理。",
+      "expected_output": "原局并无辰戌丑未（此问是概念性提问）。应注意到盘面实无墓库，澄清这一点后可结合流程说明四墓库的处理规则来自 references/四墓库.md 且只在出现辰戌丑未时加载专判。",
+      "files": [],
+      "expectations": [
+        "The response checks the chart's branches (午寅申申) and correctly notes there are no 辰戌丑未 branches in this chart.",
+        "The response does not pretend to run tomb analysis on non-existent branches.",
+        "If explaining the framework, the response reads references/四墓库.md rather than improvising school rules.",
+        "The response does not fabricate birth data or run the script with invented datetimes."
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "坤造 戊申 辛酉 甲寅 癸酉，用户说她的第一步大运是庚申、起运 3 岁。请确认这个盘的大运方向对不对。",
+      "expected_output": "戊为阳干，坤造阳年逆行，月柱辛酉逆行第一步应为庚申——用户提供的信息与规则一致。应通过 paipan.py 排盘后做交叉校验并确认一致，而不是凭口诀争论。",
+      "files": [],
+      "expectations": [
+        "The input is pillars-only, so the response verifies direction with the rule: 坤造 + 阳年戊 → 逆行 → from month pillar 辛酉 the first DaYun is 庚申, matching the user's claim.",
+        "The response confirms the user's data is consistent and cites the rule as a cross-check, not as a substitute for the script.",
+        "The response notes that exact 起运 age verification requires birth datetime (paipan.py) and offers to verify if provided.",
+        "The response does not fabricate 起运 ages or DaYun sequences beyond the user data and rule check."
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "请对乾造 庚午 壬午 辛亥 乙未（上海，1990-06-15 14:30）做完整分析并生成报告。",
+      "expected_output": "完整模式全流程：案例目录、排盘（真太阳时校正）、十步推演、第 8 步子代理审查、第 9 步先 --validate 后生成 report.html，最终交付报告路径并附小白总结。",
+      "files": [],
+      "expectations": [
+        "The response creates a case directory and stores paipan_result.json plus per-step md files.",
+        "The response runs generate_report.py --validate before generating report.html.",
+        "The response delegates the review step (Step 8) to a subagent using the template, not self-review.",
+        "The final user-facing answer ends with a plain-language 小白总结 and the report path.",
+        "No ✋结转 bookkeeping lines appear in the user-facing answer."
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "壬子 壬子 丙子 戊子 这个盘怎么样？",
+      "expected_output": "仅给四柱未给性别与出生信息。应进入信息不足模式：指出缺少性别（影响大运顺逆）与出生年验证信息，先澄清再继续；可先读盘面结构（冬水泛滥、丙火无根的意象）但不得展开大运流年判断。",
+      "files": [],
+      "expectations": [
+        "The response asks for gender (乾造/坤造) before any DaYun analysis.",
+        "The response notes that chart-only input cannot yield 起运/大运 without birth data, and refuses to fabricate them.",
+        "The response may describe the four-pillar structure while clearly labeling it preliminary.",
+        "The response does not invent birth years, 起运 ages, or DaYun sequences."
       ]
     }
   ]
